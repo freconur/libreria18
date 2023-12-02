@@ -22,6 +22,7 @@ export const dataToStatistics = async (dispatch:(action:any)=>void) => {
   const dataFromStatistics: GeneralStatisticsPerDay[] = []
   if (queryStatistics.size === 0) {
     console.log(`no hay datos para el mes de ${MES}`)
+    console.log(`no hay datos para el mes de ${MES}`)
   } else {
     // onSnapshot(statisticsRef,(querySnapshot) => {
     //   querySnapshot.docs.forEach((doc) => {
