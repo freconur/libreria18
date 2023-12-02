@@ -189,7 +189,8 @@ interface LibraryAllData {
   warningAmount: string,
   paymentData: PaymentInfo,
   paymentDataToStadistics: PaymentDataToStatdistics,
-  dataOfTicketFromDay:BasicDataStatistics
+  dataOfTicketFromDay:BasicDataStatistics,
+  showSidebarSales: boolean
 }
 interface DateData {
   date: number,

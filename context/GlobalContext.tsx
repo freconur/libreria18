@@ -68,7 +68,8 @@ type GlobalContextProps = {
   loginApisPeruContext: (userApisPeru: UserApisPeru) => void,
   paymentTypeContext: (paymentYape: boolean, paymentCash: boolean, amountPayment: AmountPayment, operationIdYape: OperationIdYape,totalAmountToCart:number,positiveBalance?:number) => void
   getPaymentTypeDailyContext:(dateData:DateData) => void,
-  canelTickerOfSaleContext : (ticket:Ticket) => void
+  canelTickerOfSaleContext : (ticket:Ticket) => void,
+  sidebarSales: (showState:boolean) => void
 }
 
 
@@ -77,6 +78,7 @@ export const GlobalContext = createContext<GlobalContextProps>({} as GlobalConte
 export function GlobalcontextProdiver({ children }: Props) {
   const [LibraryData, dispatch] = useReducer(ProductsReducer, Library)
   const [showModalCategory, setShowModalCategory] = useState<boolean>(false)
+  const [showSidebarSales, setShowSidebarSales] = useState<boolean>(false)
   const [showModalUpdateCategory, setShowModalUpdateCategory] = useState<boolean>(false)
   const [showModalDeleteCategory, setShowModalDeleteCategory] = useState<boolean>(false)
   const [showModalBrands, setShowModalBrands] = useState<boolean>(false)
@@ -164,6 +166,11 @@ export function GlobalcontextProdiver({ children }: Props) {
     dispatch({ type: "warningAmount", payload: "" })
 
   }
+  const sidebarSales = (showState:boolean) => {
+    // setShowSidebarSales(!showSidebarSales)
+    dispatch({ type: "showSidebarSales", payload: showState })
+
+  }
   const showCategory = () => {
     setShowModalCategory(!showModalCategory)
   }
@@ -243,6 +250,7 @@ export function GlobalcontextProdiver({ children }: Props) {
 
   return (
     <GlobalContext.Provider value={{
+      sidebarSales,
       canelTickerOfSaleContext,
       getPaymentTypeDailyContext,
       paymentTypeContext,
