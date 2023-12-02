@@ -29,7 +29,27 @@ export const currentDate = () => {
   return `${date.getDate()}`
 }
 export const functionDateConvert = (date: Date) => {
+  // console.log(`${date.getDate()}/${monthNumber[date.getMonth()]}/${date.getFullYear().toString().slice(2, 4)}`)
   return `${date.getDate()}/${monthNumber[date.getMonth()]}/${date.getFullYear().toString().slice(2, 4)}`
+}
+export const functionDateToPrinter = (date: Date) => {
+  // console.log(`${date.getDate()} de ${months[date.getMonth()]} del ${date.getFullYear()}`)
+  // console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)
+  return(`Fecha: ${date.getDate()} de ${months[date.getMonth()]} del ${date.getFullYear()}  Hora: ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}` )
+}
+export const functionBirthdayDate = (date: Date) => {
+  const seconds = date.toString().slice(18,27)
+  const nanoseconds = date.toString().slice(42,49)
+  const rta =   (Number(seconds) + Number(nanoseconds)/1000000000)*1000
+  const birthdayUser = new Date(rta)
+  return `${birthdayUser.getDate()} de ${months[birthdayUser.getMonth()]} del ${birthdayUser.getFullYear()}`
+}
+export const hoursUnixDate = (date:Date) => {
+  const seconds = date.toString().slice(18,28)
+  const nanoseconds = date.toString().slice(42,49)
+  const rta =   (Number(seconds) + Number(nanoseconds)/1000000000)*1000
+  const hour = new Date(rta)
+  return `${hour.getHours()}:${hour.getMinutes()}:${hour.getSeconds()}`
 }
 export const dateConvertObject = (date:Date) => {
   return {

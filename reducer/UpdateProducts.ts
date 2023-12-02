@@ -26,7 +26,7 @@ export const updateProduct = async (product:ProductToCart) => {
   await updateDoc(productRef, {
     price:product.price,
     description:product.description,
-    marcaSocio: product.marcaSocio,
+    // marcaSocio: product.marcaSocio,
     brand:product.brand,
     category:product.category,
     stock:Number(product.stock)

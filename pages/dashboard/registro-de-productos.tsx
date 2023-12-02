@@ -17,7 +17,7 @@ const initialStateValues: FormProductValues = {
   category: "",
   brand: "",
   stock: 0,
-  marcaSocio: ""
+  // marcaSocio: ""
 }
 const RegistroDeProductos = () => {
   const focusRef = useRef<HTMLInputElement>(null)
@@ -38,10 +38,12 @@ const RegistroDeProductos = () => {
       setEqualsOne(equalsOne + 1)
     }
 
-    if (form.code && form.description && form.price && form.marcaSocio) {
+    // if (form.code && form.description && form.price && form.marcaSocio) {
+      if (form.code && form.description && form.price) {
       brands()
     }
-    if (form.code && form.description && form.price && form.marcaSocio && form.brand) {
+    // if (form.code && form.description && form.price && form.marcaSocio && form.brand) {
+      if (form.code && form.description && form.price && form.brand) {
       category()
     }
     marcaSocio()
@@ -55,6 +57,7 @@ const RegistroDeProductos = () => {
       'key': 'Tab'
     })
   }
+  console.log('form', form)
   return (
     <LayoutDashboard>
 
@@ -93,7 +96,7 @@ const RegistroDeProductos = () => {
                 </div>
               }
             </div>
-            <div className=''>
+            {/* <div className=''>
               <div>
                 <label className={styles.labelForm}>Marca de socio</label>
                 <div className='flex'>
@@ -122,7 +125,7 @@ const RegistroDeProductos = () => {
                   }
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className=''>
               <div>
                 <label className={styles.labelForm}>Marca de producto</label>
@@ -130,7 +133,7 @@ const RegistroDeProductos = () => {
                   <select onChange={handleProductValues} value={form.brand} name='brand' className='w-full rounded-lg p-2 text-slate-500'>
                     <option value="">marca</option>
                     {
-                      form.code && form.description && form.price && form.marcaSocio ?
+                      form.code && form.description && form.price ?
 
                         LibraryData.brands?.map((brand) => {
                           return (
@@ -167,7 +170,7 @@ const RegistroDeProductos = () => {
                   <select onChange={handleProductValues} value={form.category} name='category' className='w-full rounded-lg p-2 text-slate-500'>
                     <option value="">categoria</option>
                     {
-                      form.code && form.description && form.price && form.marcaSocio && form.brand ?
+                      form.code && form.description && form.price && form.brand ?
                         LibraryData.category?.map((cat) => {
                           return (
                             <option key={cat.id} value={cat.name}>{cat.name}</option>

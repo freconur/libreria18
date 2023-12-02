@@ -3,6 +3,7 @@ import { BsCashCoin } from "react-icons/bs";
 import { currentMonth, currentYear } from '../../dates/date';
 import { BsTicketPerforated } from "react-icons/bs";
 import { BiMoneyWithdraw } from "react-icons/bi";
+import { useGlobalContext } from '../../context/GlobalContext';
 interface Props {
   dailySale: number | undefined,
   dailyTicket: number | undefined,
@@ -10,10 +11,13 @@ interface Props {
   dataTotalSalesPerMonth: number,
   totalSalesYear: number,
   dataSales: number[],
-  dataStatistics: GeneralStatisticsPerDay[]
+  dataStatistics: GeneralStatisticsPerDay[],
+  paymentDataToStadistics: PaymentDataToStatdistics
 }
-const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, averageTicket, dataTotalSalesPerMonth, totalSalesYear }: Props) => {
+const CardEstadisticas = ({ paymentDataToStadistics, dataStatistics, dataSales, dailySale, dailyTicket, averageTicket, dataTotalSalesPerMonth, totalSalesYear }: Props) => {
 
+  const { LibraryData } = useGlobalContext()
+  const { dataOfTicketFromDay } = LibraryData
   console.log("test", dataSales.length)
   // const getTest = () => {
   //   if (dataSales) {
@@ -27,6 +31,8 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
     // getTest()
   }, [dailySale])
   console.log('dailySale cards', dailySale)
+  console.log('dataOfTicketFromDay', dataOfTicketFromDay)
+  console.log('dataStatistics[dataStatistics.length - 1]', dataStatistics[dataStatistics.length - 1])
   return (
     <>
       {
@@ -59,13 +65,56 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
                     {Number(dataStatistics[dataStatistics.length - 1]?.growthSales)}
                     % mas que ayer</span>
                   :
-                  <span className="bg-cardTransparent rounded-sm p-1">
-                    {Number(dataStatistics[dataStatistics.length - 1]?.growthSales)}
-                    % menos que ayer</span>
+                  <>
+                    {
+                      dataStatistics[dataStatistics.length - 1].growthSales ?
+                        <span className="bg-cardTransparent rounded-sm p-1">
+                          {Number(dataStatistics[dataStatistics.length - 1]?.growthSales)}
+                          % menos que ayer</span>
+                        :
+                        null
+                    }
+                  </>
               }
             </div>
           </div>
+          <div className="w-full h-[150px] rounded-xl p-3 shadow-md bg-white">
+            {/* <div className="w-full h-[150px] rounded-sm p-3 drop-shadow-xl bg-gradient-to-r from-gr-1 from-0% via-gr-2 via-80% to-gr-3 to-100%"> */}
+            <div className="grid w-full grid-cols-gridCardStat">
+              <div className="w-full p-3">
+                <div className="text-slate-600 font-bold text-xl capitalize ">tipo de pago</div>
+                <div className="text-slate-600 gap-3  font-bold">
+                  <div className="flex items-center">
+                    <p className=' capitalize text-lg mr-3 text-green-500'>efe.:</p>
+                    {
+                      paymentDataToStadistics
+                        ?
+                        <p className='text-2xl xs:text-[15px] cz:text-2xl'>$ {paymentDataToStadistics?.cash.toFixed(2)}</p>
+                        :
+                        <p className='text-2xl xs:text-[15px] cz:text-2xl'>$ 0 </p>
+                    }
+                    {/* <p>$ {Number(dataStatistics[dataStatistics.length - 1]?.dailySales)}</p> */}
+                  </div>
+                  <div className="flex items-center">
+                    <p className=' capitalize text-lg mr-3 text-blue-500'>yape:</p>
+                    {
+                      paymentDataToStadistics
+                        ?
+                        <p className='text-2xl xs:text-[15px] cz:text-2xl'>$ {paymentDataToStadistics?.yape.toFixed(2)}</p>
+                        :
+                        <p className='text-2xl xs:text-[15px] cz:text-2xl'>$ 0 </p>
+                    }
+                    {/* <p>$ {Number(dataStatistics[dataStatistics.length - 1]?.dailySales)}</p> */}
+                  </div>
+                </div>
 
+              </div>
+              <div className="m-auto h-[50px] w-[50px] text-iconColor rounded-xl bg-cardStatisticsIcon p-3">
+                <BsCashCoin className="w-full h-full" />
+              </div>
+            </div>
+
+          </div>
           {/* ticket diarios */}
           <div className="w-full h-[150px] rounded-xl p-3 shadow-md bg-white">
             <div className="grid w-full grid-cols-gridCardStat">
@@ -73,7 +122,9 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
                 <div className="text-slate-600 font-bold text-xl capitalize">Tickets</div>
                 <div className="text-slate-600 flex gap-3  font-bold">
                   <div className="flex justify-center items-center">
-                    <p className='text-3xl'># {Number(dataStatistics[dataStatistics.length - 1]?.tickets)}</p>
+                    {/* <p className='text-3xl'># {Number(dataStatistics[dataStatistics.length - 1]?.tickets)}</p> */}
+                    <p className='text-3xl'># {dataOfTicketFromDay.tickets}</p>
+                    {/* <p className='text-3xl'># {dailyTicket}</p> */}
                   </div>
                 </div>
 
@@ -84,16 +135,26 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
             </div>
             <div className="text-slate-400 p-3">
               {
-                
-                  Number(dataStatistics[dataStatistics.length - 1]?.growthTicket) > 0
-                    ?
-                    <span className="bg-cardTransparent rounded-sm p-1">
-                      {Number(dataStatistics[dataStatistics.length - 1]?.growthTicket)}
-                      % mas que ayer</span>
-                    :
-                    <span className="bg-cardTransparent rounded-sm p-1">
-                      {Number(dataStatistics[dataStatistics.length - 1]?.growthTicket)}
-                      % menos que ayer</span>
+
+                Number(dataStatistics[dataStatistics.length - 1]?.growthTicket) > 0
+                  ?
+                  <span className="bg-cardTransparent rounded-sm p-1">
+                    {Number(dataStatistics[dataStatistics.length - 1]?.growthTicket)}
+                    % mas que ayer</span>
+                  :
+                  <>
+                    {
+                      dataStatistics[dataStatistics.length - 1].growthTicket ?
+                        <span className="bg-cardTransparent rounded-sm p-1">
+                          {Number(dataStatistics[dataStatistics.length - 1]?.growthTicket)}
+                          % menos que ayer</span>
+                        :
+                        null
+                    }
+                  </>
+                // <span className="bg-cardTransparent rounded-sm p-1">
+                //   {Number(dataStatistics[dataStatistics.length - 1]?.growthTicket)}
+                //   % menos que ayer</span>
               }
             </div>
           </div>
@@ -116,23 +177,33 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
               </div>
             </div>
             <div className="text-slate-400 p-3">
-            {
+              {
                 Number(dataStatistics[dataStatistics.length - 1]?.tickets) === 0 && Number(dataStatistics[dataStatistics.length - 1]?.dailySales) === 0 ?
 
                   null
 
-                  : 
+                  :
                   Number(dataStatistics[dataStatistics.length - 1]?.growthAverageTicket) > 0
                     ?
                     <span className="bg-cardTransparent rounded-sm p-1">
                       {Number(dataStatistics[dataStatistics.length - 1]?.growthAverageTicket)}
                       % mas que ayer</span>
                     :
-                    <span className="bg-cardTransparent rounded-sm p-1">
-                      {Number(dataStatistics[dataStatistics.length - 1]?.growthAverageTicket)}
-                      % menos que ayer</span>
+                    <>
+                      {
+                        dataStatistics[dataStatistics.length - 1].growthAverageTicket ?
+                          <span className="bg-cardTransparent rounded-sm p-1">
+                            {Number(dataStatistics[dataStatistics.length - 1]?.growthAverageTicket)}
+                            % menos que ayer</span>
+                          :
+                          null
+                      }
+                    </>
+                // <span className="bg-cardTransparent rounded-sm p-1">
+                //   {Number(dataStatistics[dataStatistics.length - 1]?.growthAverageTicket)}
+                //   % menos que ayer</span>
               }
-              
+
             </div>
           </div>
 
@@ -153,13 +224,13 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
                 <BsCashCoin className="w-full h-full" />
               </div>
             </div>
-            <div className="text-slate-400 p-3">
+            {/* <div className="text-slate-400 p-3">
               <span className="bg-cardTransparent rounded-sm p-1">25 %</span> menos que ayer
-            </div>
+            </div> */}
           </div>
 
           {/* ingresos anual */}
-          <div className="w-full h-[150px] rounded-xl p-3 shadow-md bg-white">
+          {/* <div className="w-full h-[150px] rounded-xl p-3 shadow-md bg-white">
             <div className="grid w-full grid-cols-gridCardStat">
               <div className="w-full p-3">
                 <div className="text-slate-600 font-bold text-xl capitalize">{currentYear()}</div>
@@ -177,7 +248,7 @@ const CardEstadisticas = ({ dataStatistics, dataSales, dailySale, dailyTicket, a
             <div className="text-slate-400 p-3">
               <span className="bg-cardTransparent rounded-sm p-1">25 %</span> menos que ayer
             </div>
-          </div>
+          </div> */}
 
         </div>
       }

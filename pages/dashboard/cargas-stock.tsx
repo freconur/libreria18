@@ -67,10 +67,11 @@ const CargasStock = () => {
     setCodeProduct(initialValue)
     setStockProductToCharger(initialValueStockCharger)
   }
+  console.log('stockProductToCharger',stockProductToCharger)
   return (
     <LayoutDashboard>
       <Navbar dataUser={dataUser} />
-      <div className='w-full m-3'>
+      <div className='w-full p-3'>
         <h1 className='text-slate-500 text-2xl mb-4 font-dmMono capitalize'>cargas de stock</h1>
         <form className='-wfull'>
           <div className='w-full'>
@@ -132,11 +133,11 @@ const CargasStock = () => {
                   </span>
                   <span className='text-blue-400 font-dmMono'>
                     carga:
-                    <input ref={focusRefStock} autoFocus name="stock" onChange={handleCargaStock} type="number" className='w-[40px] border-[1px] border-pastel8 rounded-sm outline-none focus-visible:border-[1px] focus-visible:border-pastel11 pl-3 ml-2' />
+                    <input  ref={focusRefStock} autoFocus name="stock" onChange={handleCargaStock} type="number" className='w-[40px] border-[1px] border-pastel8 rounded-sm outline-none focus-visible:border-[1px] focus-visible:border-pastel11 pl-3 ml-2' />
                   </span>
                 </div>
               </div>
-              <button onClick={() => handleAddStock(addStockProduct, stockProductToCharger)} className='w-full capitalize text-slate-100 font-semibold h-[40px] rounded-lg bg-pastel11 mt-5'>agregar nueva carga de stock</button>
+              <button disabled={stockProductToCharger.stock <= 0 ? true : false} onClick={() => handleAddStock(addStockProduct, stockProductToCharger)} className={`${stockProductToCharger.stock <= 0 ? "bg-gray-300" : "bg-pastel11"} w-full capitalize text-slate-100 font-semibold h-[40px] rounded-lg mt-5`}>agregar nueva carga de stock</button>
             </>
           }
 

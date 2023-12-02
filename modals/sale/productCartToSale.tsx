@@ -1,20 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react'
-import LayoutDashboard from '../../layout/LayoutDashboard'
 import { useGlobalContext } from '../../context/GlobalContext';
 import TableToSell from '../../components/TableToSell/TableToSell';
-import { AuthAction, useUser, withUser } from 'next-firebase-auth';
+import { useUser } from 'next-firebase-auth';
 import { todayDate } from '../../dates/date';
-import { RiLoader4Line, RiShoppingCartFill } from "react-icons/ri";
-import ProductToSaleMobile from '../../components/ProductToSaleMobile/ProductToSaleMobile';
 import SaleModal from '../../modals/sale/SaleModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addProductCartToProductSales } from '../../reducer/Product';
-import Navbar from '../../components/Navbar/Navbar';
-import SideBarTableToSell from '../../components/TableToSell/SideBarTableToSell';
-import useOnClickOutside from '../../hooks/useOnClickOutside';
 import { BOLETA_SUNAT } from '../../utils/sunat-data-json';
-const RegistroVentas = () => {
+import styles from '../../styles/productCartToSaleModal.module.css'
+// import SidebarToSale from '../SidebarToSale/SidebarToSale';
+import { createPortal } from 'react-dom';
+import SidebarToSale from '../../components/SidebarToSale/SidebarToSale';
+
+interface Props {
+  positiveBalance:number,
+  findTicket:Ticket
+}
+const ProductCartToSale = ({positiveBalance, findTicket}:Props) => {
+  let container;
+  if (typeof window !== "undefined") {
+    container = document.getElementById("portal-modal");
+  }
   const sidebarSale = useRef<HTMLDivElement>(null)
   const dataUser = useUser()
   const focusRef = useRef<HTMLInputElement>(null)
@@ -78,16 +84,16 @@ const RegistroVentas = () => {
       'key': 'Tab'
     })
   }
-  // console.log('BOLETA_SUNAT',BOLETA_SUNAT.client.numDoc)
-  // console.log('dataUser',dataUser)
-  return (
-    <LayoutDashboard>
-      <Navbar dataUser={dataUser} />
+  console.log('positiveBalancepositiveBalance',positiveBalance)
+  return container
+  ? createPortal(
+    <div className={styles.containerModal}>
+      <div className={styles.containerSale}>
       <>
         <ToastContainer />
         {
           showSaleModal &&
-          <SaleModal generateSold={generateSold} dataUser={dataUser} />
+          <SaleModal findTicket={findTicket} generateSold={generateSold} dataUser={dataUser} />
         }
         <div className='relative  w-full px-1'>
     
@@ -107,6 +113,7 @@ const RegistroVentas = () => {
             productToCart &&
             <>
               <div className='grid grid-cols-1 md:grid-cols-gridSale w-full p-3 md:p-5 h-heightSales'>
+              {/* <div className='grid grid-cols-1 md:grid-cols-gridSale w-full p-3 md:p-5 '> */}
                 <div className='w-full h-full grid grid-rows-gridRowsSales overflow-y-scroll'>
                   <form className='mb-2'>
                     <div>
@@ -117,16 +124,20 @@ const RegistroVentas = () => {
                     </div>
                   </form>
                   <TableToSell productToCart={productToCart} totalAmountToCart={totalAmountToCart} loaderToSell={loaderToSell}/>
+                  {/* <SidebarToSale productToCart={productToCart} totalAmountToCart={totalAmountToCart} loaderToSell={loaderToSell}/> */}
                 </div>
-                <SideBarTableToSell closeSidebarSale={closeSidebarSale} showTableSales={showTableSales}  totalAmountToCart={totalAmountToCart} productToCart={productToCart} />
+                {/* <SideBarTableToSell closeSidebarSale={closeSidebarSale} showTableSales={showTableSales}  totalAmountToCart={totalAmountToCart} productToCart={productToCart} /> */}
+                <SidebarToSale positiveBalance={positiveBalance} closeSidebarSale={closeSidebarSale} showTableSales={showTableSales}  totalAmountToCart={totalAmountToCart} productToCart={productToCart} />
               </div>
             </>
           }
         </div>
       </>
-    </LayoutDashboard>
+      </div>
+    </div>,
+    container
   )
+  : null
 }
-export default withUser({
-  whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN
-})(RegistroVentas)
+
+export default ProductCartToSale

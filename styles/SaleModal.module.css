@@ -17,18 +17,23 @@
   height: 250px;
   /* background: linear-gradient(90deg, rgba(246,246,246,1) 0%, rgba(210,210,210,1) 51%, rgba(196,196,196,1) 100%); */
   /* text-transform: capitalize; */
-  background-color: #78deab;
+  background-color: white;
   border-radius: 15px;
   margin-bottom: 10px;
   padding:20px
 }
+.warningAmount {
+  display: block;
+  text-align: center;
+  margin: auto;
+}
 .title {
-  font-family: "DM Mono";
+  font-family: "Montserrat";
   font-size: medium;
   text-align: center;
   margin-bottom: 20px;
   /* color: #182c18; */
-  color: white;
+  color: #182c18;
 }
 .options {
   display: flex;

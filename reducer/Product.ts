@@ -2,18 +2,23 @@
 import { OrderByDirection, QuerySnapshot, Timestamp, addDoc, collection, deleteDoc, doc, endAt, endBefore, getDoc, getDocs, getFirestore, increment, limit, onSnapshot, orderBy, query, setDoc, startAfter, updateDoc, where } from "firebase/firestore";
 import { app } from "../firebase/firebase.config";
 import { currentDate, currentMonth, currentYear } from "../dates/date";
+import { sendNewTicket } from "../utils/printer";
 
 const db = getFirestore(app)
 const YEAR_MONTH = `${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}`
 const yearMonth = `${currentMonth()}-${currentYear()}`
 
-export const addNewProduct = async (dispatch: (action: any) => void, productData: FormProductValues) => {
+const DAILY_SALE = "vAWFt15qlNVykhHvNno0"
+const DB_VENTAS = "xB98zEEqUPU3LXiIf7rQ"
+const PRODUCT_SALES = "product-sales"
+const SALES_PER_MONTH = "EwszanTDNKpiCy4gMvSu"
+const TICKET = "1gZJTbl4yu6S8oD9a1En"
+const PAYMENT_TYPE = "CmUL2BxS42XLE9c40kOs"
 
-  console.log('productData', productData)
+export const addNewProduct = async (dispatch: (action: any) => void, productData: FormProductValues) => {
   const docRef = doc(db, "products", productData.code as string); // busco en la base de datos
   // const docSnap = await getDoc(docRef);
   // const prod = docSnap?.data()
-
   // if(prod) {
   //   console.log('ya existe el producto')
   // }
@@ -25,8 +30,8 @@ export const addNewProduct = async (dispatch: (action: any) => void, productData
 }
 
 export const getDailySales = async () => {
-  const ref = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${currentMonth()}-${currentYear()}`, "15")
-  // const ref = collection(db, `/dailysale/vAWFt15qlNVykhHvNno0/${currentMonth()}-${currentYear()}/${currentDate()}`)
+  const ref = doc(db, `/dailysale/${DAILY_SALE}/${currentMonth()}-${currentYear()}`, "15")
+  // const ref = collection(db, `/dailysale/${DAILY_SALE}/${currentMonth()}-${currentYear()}/${currentDate()}`)
   const snap = await getDoc(ref)
   console.log('snap.docs', snap.data())
   return snap.data()
@@ -133,48 +138,60 @@ export const findToAddProductCart = async (dispatch: (action: any) => void, code
         cart?.map(prod => {
           if (prod.code === productCartRepeat.code) {
             productCartRepeat.amount = productCartRepeat?.amount as number + 1
-            if (Number(productCartRepeat.amount) < Number(prod.stock)) {
-              dispatch({ type: "productToCart", payload: cart })
-              dispatch({ type: "loaderToSell", payload: false })
-              dispatch({ type: "toastifyNotificationAddProduct" })
-            }
-            if (Number(productCartRepeat.amount) === Number(prod.stock)) {
-              dispatch({ type: "productToCart", payload: cart })
-              dispatch({ type: "loaderToSell", payload: false })
-              dispatch({ type: "toastifyNotificationAddProduct" })
+            console.log('estoy en producto repetido')
+            dispatch({ type: "productToCart", payload: cart })
+            dispatch({ type: "loaderToSell", payload: false })
+            dispatch({ type: "toastifyNotificationAddProduct" })
+            //cart: 3                              nuevo prod.: 1
+            // if (Number(productCartRepeat.amount) < Number(prod.stock)) {
+            // console.log('estoy en producto option1')
 
-            }
-            if (Number(productCartRepeat.amount) > Number(prod.stock)) {
-              console.log('se pasaron')
-              productCartRepeat.amount = productCartRepeat?.amount as number - 1
-              productCartRepeat.warning = "no puedes cargar mas productos"
-              dispatch({ type: "productToCart", payload: cart })
-              dispatch({ type: "loaderToSell", payload: false })
-              dispatch({ type: "toastifyNotificationAddProduct" })
+            //   dispatch({ type: "productToCart", payload: cart })
+            //   dispatch({ type: "loaderToSell", payload: false })
+            //   dispatch({ type: "toastifyNotificationAddProduct" })
+            // }
+            // if (Number(productCartRepeat.amount) === Number(prod.stock)) {
+            // console.log('estoy en producto option 2')
 
-            }
+            //   dispatch({ type: "productToCart", payload: cart })
+            //   dispatch({ type: "loaderToSell", payload: false })
+            //   dispatch({ type: "toastifyNotificationAddProduct" })
+
+            // }
+            // if (Number(productCartRepeat.amount) > Number(prod.stock)) {
+            //   console.log('se pasaron')
+            //   productCartRepeat.amount = productCartRepeat?.amount as number - 1
+            //   // productCartRepeat.warning = "no puedes cargar mas productos"
+            //   dispatch({ type: "productToCart", payload: cart })
+            //   dispatch({ type: "loaderToSell", payload: false })
+            //   dispatch({ type: "toastifyNotificationAddProduct" })
+
+            // }
           }
         })
       } else {
-        if (prod?.stock === 0) {
-          const amount = { amount: prod?.stock }
-          rta = { ...prod, ...amount }
-          cart?.unshift(rta)
-          dispatch({ type: "productToCart", payload: cart })
-          dispatch({ type: "loaderToSell", payload: false })
-          dispatch({ type: "toastifyNotificationAddProduct" })
+        // if (prod?.stock === 0) {
+        //   const amount = { amount: prod?.stock }
+        //   rta = { ...prod, ...amount }
+        //   cart?.unshift(rta)
+        //   dispatch({ type: "productToCart", payload: cart })
+        //   dispatch({ type: "loaderToSell", payload: false })
+        //   dispatch({ type: "toastifyNotificationAddProduct" })
 
-        }
-        if (prod?.stock > 0) {
-          console.log('hay stock')
-          const amount = { amount: 1, warning: "" }
-          rta = { ...prod, ...amount }
-          cart?.unshift(rta)
-          dispatch({ type: "productToCart", payload: cart })
-          dispatch({ type: "loaderToSell", payload: false })
-          dispatch({ type: "toastifyNotificationAddProduct" })
+        // }
+        // if (prod?.stock > 0) {
+        console.log('hay stock')
+        //-----modificando la aplicacion del atributo warning-----//
+        //---esta vez no tendra limite de de merca, aun cuando no se tenga stock se podra vender el producto, haciendo negativo el stock.
+        // const amount = { amount: 1, warning: "" }
+        const amount = { amount: 1 }
+        rta = { ...prod, ...amount }
+        cart?.unshift(rta)
+        dispatch({ type: "productToCart", payload: cart })
+        dispatch({ type: "loaderToSell", payload: false })
+        dispatch({ type: "toastifyNotificationAddProduct" })
 
-        }
+        // }
       }
     } else {
       dispatch({ type: "loaderToSell", payload: false })
@@ -194,10 +211,10 @@ export const deleteProductToCart = (dispatch: (action: any) => void, cart: Produ
 
 
 
-export const dailySale = async (dispatch: (action: any) => void) => {
-  // const dailySaleRef = doc(db, "/dailysale", "vAWFt15qlNVykhHvNno0")
-  // const dailySaleRef = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}/`, currentDate() as string)
-  const dailySaleRef = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}/`, `${currentDate()}`)
+export const dailySale = async (dispatch: (action: any) => void,dateData: DateData) => {
+ 
+  // const dailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}/`, `${currentDate()}`)
+  const dailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${dateData.month}-${dateData.year}/`, `${dateData.date}`)
 
   const docSnap = await getDoc(dailySaleRef);
 
@@ -205,7 +222,7 @@ export const dailySale = async (dispatch: (action: any) => void) => {
     console.log("Document data:", docSnap.data());
     onSnapshot(dailySaleRef, (doc) => {
       // const data:number = doc.data()?.amount
-      dispatch({ type: "dailySale", payload: doc.data()?.amount})
+      dispatch({ type: "dailySale", payload: doc.data()?.amount })
       // dispatch({ type: "dailySale", payload: docSnap.data()?.amount })
 
     })
@@ -223,14 +240,15 @@ export const dailySale = async (dispatch: (action: any) => void) => {
 
 
 
-export const dailyTicket = async (dispatch: (action: any) => void) => {
+export const dailyTicket = async (dispatch: (action: any) => void, dateData:DateData) => {
   // const q = query(collection(db, "cities")
-  const res = query(collection(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${YEAR_MONTH}/${currentDate()}`));
+  const res = query(collection(db, `/db-ventas/${DB_VENTAS}/${YEAR_MONTH}/${currentDate()}`));
+  // const res = query(collection(db, `/db-ventas/${DB_VENTAS}/${dateData.month}-${dateData.year}/${dateData.month}-${dateData.year}`, `${dateData.date}`));
   const docSnap = await getDocs(res)
   let totalAmountDailySale: number = 0
   let dailyTicket: number = 0
   docSnap.docs.forEach(ticket => {
-    if (ticket.data().library18 === true) {
+    if (ticket.data().cancel === false) {
       dailyTicket = dailyTicket + 1
       const productsOfTicket = ticket.data().product
       productsOfTicket.map((item: ProductToCart) => {
@@ -243,77 +261,71 @@ export const dailyTicket = async (dispatch: (action: any) => void) => {
   const averageTicket = totalAmountDailySale / dailyTicket
   dispatch({ type: "dailyTicket", payload: dailyTicket })
   dispatch({ type: "averageTicket", payload: averageTicket })
-  // const dailySaleRef = doc(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${YEAR_MONTH}/${currentDate()}`)
+  // const dailySaleRef = doc(db, `/db-ventas/${DB_VENTAS}/${YEAR_MONTH}/${currentDate()}`)
   // const docSnap = await getDoc(dailySaleRef)
   // console.log('dailySaleRef', dailySaleRef)
   // console.log('docSnap', docSnap)
 }
-export const generateSold = async (dispatch: (action: any) => void, cart: ProductToCart[] | undefined, cero: number) => {
+export const generateSold = async (dispatch: (action: any) => void, cart: ProductToCart[] | undefined, cero: number, paymentData: PaymentInfo, userData: User) => {
   dispatch({ type: "generateSold", payload: true })
-  // let totalAmountOfCart: number = 0
-  
 
-  let library18 = true
-  let totalAmountOfCartLibrary: number = 0
-  let totalAmountOfCartWaliky: number = 0
-  let totalAmountOfCartWalikySublimados: number = 0
+  // let totalAmountOfCartLibrary: number = 0
+  const findProductAmountCero = cart?.find(p => p.amount === 0)
 
-  //aqui tengo que crear la funcionalidad de que sume el daily sale correspondiente para cada marca
-  cart?.map(async (item) => {
-    const refProduct = doc(db, "products", `${item?.code}`);
-    //el codigo de abajo se hardcodeara ya que las marcas son estaticas.
-    if (item.marcaSocio === "waliky") {
-      console.log('marcasocio', item.marcaSocio)
-
-      totalAmountOfCartWaliky = totalAmountOfCartWaliky + (Number(item.amount) * Number(item.price))
-      library18 = false
-    } else if (item.marcaSocio === "waliky-sublimados") {
-      console.log('marcasocio', item.marcaSocio)
-
-      totalAmountOfCartWalikySublimados = totalAmountOfCartWalikySublimados + (Number(item.amount) * Number(item.price))
-      library18 = false
-    } else if (item.marcaSocio === "libreria18") {
-      console.log('marcasocio', item.marcaSocio)
-      totalAmountOfCartLibrary = totalAmountOfCartLibrary + (Number(item.amount) * Number(item.price))
-      // aqui debo crear la logica para crear un nuevo mes cada que se inicia uno nuevo antes de seguir con el codigo de abajo,
-      // de lo contrario podria no registrar los nuevos datos con el siguiente mes.
-      await setDoc(doc(db, `/salesPerMonth/EwszanTDNKpiCy4gMvSu/library18/${currentYear()}/month-${currentYear()}/${currentMonth()}`), { month: `${currentMonth()}`, totalSales: 0 })
-      const ref = doc(db, `/salesPerMonth/EwszanTDNKpiCy4gMvSu/library18/${currentYear()}/month-${currentYear()}/${currentMonth()}`);
-      const totalSaleMonth = await getDoc(ref)
-      await updateDoc(ref, { totalSales: totalAmountOfCartLibrary + totalSaleMonth.data()?.totalSales })
-      await updateDoc(ref, { totalSales: totalAmountOfCartLibrary + totalSaleMonth.data()?.totalSales })
-      //estoy actualizando el stock de cada producto del cart
-
-      await updateDoc(refProduct, { stock: increment(-Number(item.amount))})
-      // .then(async r=> await addProductCartToProductSales(cart))
-
-      // await updateDoc(refProduct, { stock: Number(item.stock) - Number(item.amount) }) 
-    }
-  })
-
-  await addProductFromCartToTicket(
-    {
-      timestamp: Timestamp.fromDate(new Date()),
-      product: cart,
-      library18: library18
-    }
-  ).then(async (r) => {
-    dispatch({ type: "resetAmountCart" })
+  if (findProductAmountCero) {
+    const warning = "La cantidad minima de venta es de 1 unidad, verifica que todos los productos tengan una cantidad igual o mayor a uno 1"
     dispatch({ type: "generateSold", payload: false })
-    dispatch({ type: "showSaleModal", payload: false })
-    dispatch({ type: "tostifyNotificationSales", payload: cero + 1 })
-    dispatch({ type: "cleanCart" })
-    await updatedailySale(totalAmountOfCartLibrary)//esto se cambia provisionalmente
-    await updateDailySaleWaliky(totalAmountOfCartWaliky)
-    await updateDailySaleWalikySublimados(totalAmountOfCartWalikySublimados)
-  })
-  await addTicketDataToStatistics()
-  await addProductCartToProductSales(cart)
+    dispatch({ type: "warningAmount", payload: warning })
 
+  } else {
+    dispatch({ type: "warningAmount", payload: "" })
+
+    await setDoc(doc(db, `/salesPerMonth/${SALES_PER_MONTH}/mi-negocio/${currentYear()}/month-${currentYear()}/${currentMonth()}`), { month: `${currentMonth()}`, totalSales: 0 })
+      .then(r => {
+        cart?.map(async (item) => {
+
+          const refProduct = doc(db, "products", `${item?.code}`);
+          // totalAmountOfCartLibrary = totalAmountOfCartLibrary + (Number(item.amount) * Number(item.price))
+          const ref = doc(db, `/salesPerMonth/${SALES_PER_MONTH}/mi-negocio/${currentYear()}/month-${currentYear()}/${currentMonth()}`);
+          const totalSaleMonth = await getDoc(ref)
+          // await updateDoc(ref, { totalSales: totalAmountOfCartLibrary + totalSaleMonth.data()?.totalSales })
+          //estoy actualizando el stock de cada producto del cart
+          await updateDoc(refProduct, { stock: increment(-Number(item.amount)) })
+        })
+      })
+      .then(async r => {
+        await addProductFromCartToTicket(
+          {
+            //agregando los nuevos campos de pago cash y yape
+            // timestamp: Timestamp.fromDate(new Date()),
+            timestamp: new Date(),
+            product: cart,
+            paymentData,
+          },
+          userData
+        ).then(async (r) => {
+          dispatch({ type: "resetAmountCart" })
+          dispatch({ type: "generateSold", payload: false })
+          dispatch({ type: "showSaleModal", payload: false })
+          dispatch({ type: "tostifyNotificationSales", payload: cero + 1 })
+          dispatch({ type: "cleanCart" })
+          // await updatedailySale(totalAmountOfCartLibrary)//esto se cambia provisionalmente
+          await updatedailySale(paymentData)//probaremos con el total que obtenemos y no lo calcularemos nuevamente.
+          // await updateDailySaleWaliky(totalAmountOfCartWaliky)
+          // await updateDailySaleWalikySublimados(totalAmountOfCartWalikySublimados)
+        })
+      })
+      .then(async r => {
+        await addTicketDataToStatistics()
+        await addProductCartToProductSales(cart)
+      })
+    // debo verificar de donde obtengo la data de estadisticas antes de agregar o quitar esta data del endpoint
+    //aqui tengo que crear la funcionalidad de que sume el daily sale correspondiente para cada marca
+  }
 }
 
 const addTicketDataToStatistics = async () => {
-  const ticketRef = collection(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${YEAR_MONTH}/${currentDate()}`)
+  const ticketRef = collection(db, `/db-ventas/${DB_VENTAS}/${YEAR_MONTH}/${currentDate()}`)
   const statisticsRef = doc(db, `/statistics/${YEAR_MONTH}`, `${currentDate()}`)
   const snapTicket = await getDocs(ticketRef)
 
@@ -330,26 +342,92 @@ const addTicketDataToStatistics = async () => {
 
   }
 }
-export const addProductFromCartToTicket = async (ticket: Ticket) => {
-  const docRef = doc(db, "/ticket", "1gZJTbl4yu6S8oD9a1En");
-  const docSnap = await getDoc(docRef);
+export const addProductFromCartToTicket = async (ticket: Ticket, userData: User) => {
+  const docRef = doc(db, "/ticket", `${TICKET}`);
+  const paymentTypeRef = doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/`, `${currentDate()}`)
+  const docSnap = await getDoc(docRef)
+  const newValueTicket: Number = Number(docSnap.data()?.ticket) + 1
   if (docSnap.exists()) {
-    const numeroTicket = docSnap.data().ticket + 1
-    // console.log('numeroTicket', numeroTicket)
-    // await setDoc(doc(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${currentMonth()}-${currentYear()}`, `${numeroTicket}`), ticket)
-    await setDoc(doc(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}`), { ticket: "ticket" })
-    await setDoc(doc(db, `/db-ventas/xB98zEEqUPU3LXiIf7rQ/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}/${currentDate()}`, `${numeroTicket}`), ticket)
-    await updateDoc(docRef, {
-      ticket: numeroTicket
-    });
-  }
-  // await updatedailySale(totalAmountOfCartLibrary)
 
-  //parece que aqui es donde deberia de colorcar todos los datos para las estadisticas
+    await setDoc(doc(db, `/db-ventas/${DB_VENTAS}/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}`), { ticket: "ticket" })
+      .then(async r => {
+        if (Number(ticket.paymentData.balanceFromCustomer) > 0) {
+
+        }
+        if (ticket.paymentData.cash.cash && !ticket.paymentData.yape.yape) {
+          await setDoc(doc(db, `/db-ventas/${DB_VENTAS}/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}/${currentDate()}`, `${userData.identifier}${newValueTicket}`), {
+            product: ticket.product,
+            timestamp: ticket.timestamp,
+            cash: { cash: ticket.paymentData.cash.cash, amount: ticket.paymentData.totalAmountToCart },
+            yape: ticket.paymentData.yape.yape,
+            totalAmountCart: ticket.paymentData.totalAmountToCart,
+            cancel: false,
+          })
+          const getPaymentType = await getDoc(paymentTypeRef)
+          if (getPaymentType.exists()) {
+            await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: increment(Number(ticket.paymentData.totalAmountToCart)) })
+          } else {
+            await setDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: 0, yape: 0 })
+              .then(async r => {
+                await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: increment(Number(ticket.paymentData.totalAmountToCart)) })
+              })
+          }
+        }
+        if (ticket.paymentData.yape.yape && !ticket.paymentData.cash.cash) {
+          await setDoc(doc(db, `/db-ventas/${DB_VENTAS}/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}/${currentDate()}`, `${userData.identifier}${newValueTicket}`), {
+            product: ticket.product,
+            timestamp: ticket.timestamp,
+            cash: ticket.paymentData.cash.cash,
+            yape: { yape: ticket.paymentData.yape.yape, amount: ticket.paymentData.totalAmountToCart, operationId: ticket.paymentData.yape.operationId },
+            totalAmountCart: ticket.paymentData.totalAmountToCart,
+            cancel: false,
+          })
+          const getPaymentType = await getDoc(paymentTypeRef)
+          if (getPaymentType.exists()) {
+            console.log('probando que no se necesita condicionales')
+            await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.totalAmountToCart)) })
+          } else {
+            await setDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: 0, yape: 0 })
+              .then(async r => {
+                await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.totalAmountToCart)) })
+              })
+          }
+        }
+
+        if (ticket.paymentData.cash.cash && ticket.paymentData.yape.yape) {
+          await setDoc(doc(db, `/db-ventas/${DB_VENTAS}/${currentMonth()}-${currentYear()}/${currentMonth()}-${currentYear()}/${currentDate()}`, `${userData.identifier}${newValueTicket}`), {
+            product: ticket.product,
+            timestamp: ticket.timestamp,
+            cash: ticket.paymentData.cash,
+            yape: ticket.paymentData.yape,
+            totalAmountCart: ticket.paymentData.totalAmountToCart,
+            cancel: false,
+          })
+          const getPaymentType = await getDoc(paymentTypeRef)
+          if (getPaymentType.exists()) {
+              await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.yape.amount)), cash: increment(Number(ticket.paymentData.cash.amount)) })
+          } else {
+            await setDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: 0, yape: 0 })
+              .then(async r => {
+                await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.yape.amount)), cash: increment(Number(ticket.paymentData.cash.amount)) })
+              })
+          }
+        }
+      })
+      .then(async r => {
+        await updateDoc(docRef, {
+          ticket: increment(1)
+        })
+      })
+    // .then(r => {
+    // })
+  }
+  // if (newValueTicket) sendNewTicket(ticket.paymentData, ticket.product, ticket.timestamp, `${userData.identifier}${newValueTicket}`, userData)
+
 }
 
 export const addProductCartToProductSales = async (cart: ProductToCart[] | undefined) => {
-  const pathProductsSales = `/products-sales-library18/${currentYear()}/${currentMonth()}/${currentMonth()}/${currentDate()}`
+  const pathProductsSales = `/products-sales/${currentYear()}/${currentMonth()}/${currentMonth()}/${currentDate()}`
   const pathQuery = collection(db, pathProductsSales)
   const querySnapshot = await getDocs(pathQuery)
   const productsFromCart: ProductToCart[] = []
@@ -363,10 +441,10 @@ export const addProductCartToProductSales = async (cart: ProductToCart[] | undef
       await deleteDoc(doc(db, pathProductsSales, "1"));
     })
   } else {
-  // } else if (querySnapshot.size > 0) {//si la collection tiene mas de un producto entrara aqui
+    // } else if (querySnapshot.size > 0) {//si la collection tiene mas de un producto entrara aqui
 
-    if(productsFromCart.length === querySnapshot.size) { // si productsFromCart tiene el mismo tamanio que qiuerySanpshot.size entra 
-      
+    if (productsFromCart.length === querySnapshot.size) { // si productsFromCart tiene el mismo tamanio que qiuerySanpshot.size entra 
+
       cart?.map(async (item) => {//recorro el array para comprobar si existe dentro de productsFromCart
         const findItem = productsFromCart?.find(i => i.code === item.code)
         console.log('findItem', findItem)
@@ -380,7 +458,7 @@ export const addProductCartToProductSales = async (cart: ProductToCart[] | undef
             totalAmountSale: increment(Number(item?.amount))
           })
         } else {
-          await setDoc(doc(db, pathProductsSales, `${item.code}`), { ...item, totalAmountSale: Number(item.amount)})
+          await setDoc(doc(db, pathProductsSales, `${item.code}`), { ...item, totalAmountSale: Number(item.amount) })
           // await setDoc(doc(db, pathProductsSales, `${item.code}`), { ...item, totalAmountSale: item.amount })
         }
       })
@@ -388,8 +466,10 @@ export const addProductCartToProductSales = async (cart: ProductToCart[] | undef
   }
 }
 
-export const getProductsSales = async(dispatch: (action: any) => void) => {
-  const pathProductsSales = `/products-sales-library18/${currentYear()}/${currentMonth()}/${currentMonth()}/${currentDate()}`
+export const getProductsSales = async (dispatch: (action: any) => void) => {
+  // const pathProductsSales = `/products-sales-library18/${currentYear()}/${currentMonth()}/${currentMonth()}/${currentDate()}`
+  const pathProductsSales = `/products-sales/${currentYear()}/${currentMonth()}/${currentMonth()}/${currentDate()}`
+  console.log('test', pathProductsSales)
   const producstSalesRef = collection(db, pathProductsSales)
   const products: ProductToCart[] = []
   const getProductSale = await getDocs(producstSalesRef)
@@ -399,26 +479,12 @@ export const getProductsSales = async(dispatch: (action: any) => void) => {
   })
   dispatch({ type: "getProductsSales", payload: products })
 
-  // onSnapshot(producstSalesRef, querySnapshot => {
-  //   querySnapshot.forEach((doc) => {
-  //     products.push(doc.data())
-  //   })
-  //   dispatch({ type: "getProductsSales", payload: products })
-  // })
-//lo de arriba es lo que estaba funcional
-
-  // onSnapshot(res, (snapshot) => {
-  //   const marcaSocio: MarcaSocio[] = []
-  //   snapshot.docs.forEach((doc) => {
-  //     marcaSocio.push({ ...doc.data(), id: doc.id })
-  //   })
-  //   dispatch({ type: "marcaSocio", payload: marcaSocio })
-
-
 }
 export const updateDailySaleFromStatistics = async (totalAmountCart: number) => {
-  const dailysaleRef = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}`, `${currentDate()}`)
-  const updateDailySaleFromStatistics = doc(db, `/statistics/${yearMonth}/${yearMonth}/`,`${currentDate()}`)
+  const dailysaleRef = doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}`, `${currentDate()}`)
+  //----verifico si ya existe o si ya secreo los atributos, delos contrario debo de crearlos-----//
+  // await setDoc(doc(db, `/statistics/${yearMonth}/${yearMonth}/`, `${currentDate()}`), {dailySales:0, ticket:0})
+  const updateDailySaleFromStatistics = doc(db, `/statistics/${yearMonth}/${yearMonth}/`, `${currentDate()}`)
   const monthRef = doc(db, `/statistics/${yearMonth}/`)
   const statisticsSnap = await getDoc(updateDailySaleFromStatistics)
   const dailyData = await getDoc(dailysaleRef)
@@ -427,34 +493,31 @@ export const updateDailySaleFromStatistics = async (totalAmountCart: number) => 
       // const dailySales = Number(statisticsSnap.data().dailySales) + totalAmountCart
       // await updateDoc(updateDailySaleFromStatistics, { dailySales: dailySales })
       const totalAmount = Number(totalAmountCart.toFixed(2))
-      await updateDoc(updateDailySaleFromStatistics, { dailySales: increment(totalAmount)})
+      await updateDoc(updateDailySaleFromStatistics, { dailySales: increment(totalAmount) })
     } else {
-      await setDoc(monthRef, {month:currentMonth()});
-      await setDoc(updateDailySaleFromStatistics, {dailySales:0, tickets:0});
-      await updateDoc(updateDailySaleFromStatistics, { dailySales: totalAmountCart.toFixed(2) })
+      await setDoc(monthRef, { month: currentMonth() });
+      await setDoc(updateDailySaleFromStatistics, { dailySales: 0, tickets: 0 });
+      await updateDoc(updateDailySaleFromStatistics, { dailySales: Number(totalAmountCart.toFixed(2)) })
     }
   } else {
     console.log('updateDailySaleFromStatistics: no hacemos nada')
   }
 }
-export const updatedailySale = async (totalAmountOfCart: number) => {
-  const updatedailySaleRef = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}/${currentDate()}`);
+export const updatedailySale = async (paymentInfo: PaymentInfo) => {
+  const updatedailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}/${currentDate()}`);
   const docSnap = await getDoc(updatedailySaleRef)
   if (docSnap.exists()) {
-    // const currentlyDailySale = Number(docSnap.data().amount) + totalAmountOfCart
-    const currentlyDailySale = Number(totalAmountOfCart.toFixed(2) )
+    const currentlyDailySale = Number((paymentInfo.totalAmountToCart).toFixed(2))
     await updateDoc(updatedailySaleRef, { amount: increment(currentlyDailySale) })
-    await updateDailySaleFromStatistics(totalAmountOfCart)
-
+    await updateDailySaleFromStatistics(currentlyDailySale)
   } else {
-    await setDoc(doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}`, currentDate()), { amount: 0 });
-    const updatedailySaleRef = doc(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}/${currentDate()}`);
+    await setDoc(doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}`, currentDate()), { amount: 0 });
+    const updatedailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}/${currentDate()}`);
     const docSnap = await getDoc(updatedailySaleRef)
-    await updateDailySaleFromStatistics(totalAmountOfCart)
     if (docSnap.exists()) {
-      // const currentlyDailySale = Number(docSnap.data().amount) + totalAmountOfCart
-      const currentlyDailySale = Number(totalAmountOfCart.toFixed(2)) 
+      const currentlyDailySale = Number((paymentInfo.totalAmountToCart).toFixed(2))
       await updateDoc(updatedailySaleRef, { amount: increment(currentlyDailySale) })
+      await updateDailySaleFromStatistics(currentlyDailySale)
     }
   }
 }
@@ -536,8 +599,8 @@ export const addStockToProductUpdate = async (dispatch: (action: any) => void, c
   }
 }
 export const getIncomePerDay = async (dispatch: (action: any) => void) => {
-
-  const ref = collection(db, `/dailysale/vAWFt15qlNVykhHvNno0/${yearMonth}`)
+  //esta funcion ya no se usara ya que la funcion dataToStatistics que se encuentra en Statistics sera la encargada de generar todos los datos que esta funcion ya hace
+  const ref = collection(db, `/dailysale/${DAILY_SALE}/${yearMonth}`)
   // const res = query(collection(db, `/products`));
   const dailySales: DailySales[] = []
   const dataSales: number[] = []
@@ -575,7 +638,7 @@ export const getIncomePerDay = async (dispatch: (action: any) => void) => {
 }
 
 export const getTotalSalesPerYear = async (dispatch: (action: any) => void) => {
-  const ref = collection(db, `/salesPerMonth/EwszanTDNKpiCy4gMvSu/library18/${currentYear()}/month-${currentYear()}`)
+  const ref = collection(db, `/salesPerMonth/${SALES_PER_MONTH}/mi-negocio/${currentYear()}/month-${currentYear()}`)
   const docSnap = await getDocs(ref)
   let totalSalesYear: number = 0
   if (docSnap) {
@@ -637,14 +700,32 @@ export const getFilterProductByStock = async (dispatch: (action: any) => void, p
 
 }
 
-export const validateUserPin = async (dispatch:(action:any) => void, idUser:string, pin:string) => {
-  const userRef = doc(db, "users",idUser)
+export const validateUserPin = async (dispatch: (action: any) => void, idUser: string, pin: string) => {
+  const userRef = doc(db, "users", idUser)
   const gueryUser = await getDoc(userRef)
-  if(gueryUser.exists()) {
+  if (gueryUser.exists()) {
 
-    if(gueryUser.data().pin === Number(pin)){
-      dispatch({type:"validatePin", payload: true})
+    if (gueryUser.data().pin === Number(pin)) {
+      dispatch({ type: "validatePin", payload: true })
     }
   }
 }
 
+export const paymentDataToSale = (dispatch: (action: any) => void, paymentYape: boolean, paymentCash: boolean, amountPayment: AmountPayment, operationIdYape: OperationIdYape, totalAmountToCart: number, balanceFromCustomer?: number) => {
+  const paymentData: PaymentInfo = {
+    totalAmountToCart: Number(totalAmountToCart.toFixed(2)),
+    yape: {
+      yape: paymentYape,
+      amount: Number(amountPayment.yape),
+      operationId: Number(operationIdYape.operationid)
+    },
+    cash: {
+      cash: paymentCash,
+      amount: Number(amountPayment.cash)
+    },
+    balanceFromCustomer: balanceFromCustomer ? Number(balanceFromCustomer) : 0
+
+  }
+  console.log('paymentData', paymentData)
+  dispatch({ type: "paymentData", payload: paymentData })
+}

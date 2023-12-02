@@ -62,7 +62,7 @@ const FormUpdate = ({ categoryActive, handleActiveBrands, handleActiveCategory, 
                   stock :
                 </label>
                 <input onChange={onChangeItem} name="stock" className={styles.inputCode} value={item?.stock} type="text" placeholder={item?.stock} />
-                <div className='block'>
+                {/* <div className='block'>
                   <label className='text-slate-500 font-dmMono capitalize '>
                     marca de socio :
                   </label>
@@ -74,7 +74,7 @@ const FormUpdate = ({ categoryActive, handleActiveBrands, handleActiveCategory, 
                       <option value="libreria18">libreria18</option>
                     </select>
                   </div>
-                </div>
+                </div> */}
                 <label className='text-slate-500 font-dmMono capitalize '>
                   marca :
                 </label>

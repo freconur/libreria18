@@ -1,16 +1,19 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { useGlobalContext } from '../../context/GlobalContext'
+
+
 interface Props {
   totalAmountToCart: number,
   productToCart: ProductToCart[] | undefined,
   showTableSales: boolean,
-  closeSidebarSale: () => void
+  closeSidebarSale: () => void,
+  positiveBalance:Number
 }
 const initialValueComprobante = { typeProofPayment: "", }
 const initialValueOperationId = { operationid: "" }
 const initialValueAmountsPayment = { yape: "0", cash: "0" }
 const initialWarningPayment = { yape: "", opartionId: "", amount: "" }
-const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, closeSidebarSale }: Props) => {
+const SidebarToSale = ({ totalAmountToCart, productToCart, showTableSales, closeSidebarSale,positiveBalance }: Props) => {
   const { LibraryData, showGenerateSale, paymentTypeContext } = useGlobalContext()
   const { showSaleModal } = LibraryData
   //boleta para sunat
@@ -19,6 +22,7 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
   const [warningPayment, setWarningPayment] = useState(initialWarningPayment)
   const [paymentYape, setPaymentYape] = useState(false)
   const [paymentCash, setPaymentCash] = useState(true)
+  const [totalToPayment, setTotalToPayment] = useState(0)
   const [amountPayment, setAmountPayment] = useState(initialValueAmountsPayment)
 
   const handleChangeProofPayment = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -28,23 +32,24 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
     })
   }
   useEffect(() => {
+    setTotalToPayment(totalAmountToCart - Number(positiveBalance))
+  },[totalAmountToCart])
+  useEffect(() => {
     setAmountPayment(initialValueAmountsPayment)
     setOperationIdYape(initialValueOperationId)
   }, [paymentYape, paymentCash])
 
   useEffect(() => {
-    if (Number(amountPayment.yape) < totalAmountToCart) {
+    if (Number(amountPayment.yape) < totalToPayment) {
       setWarningPayment({ ...warningPayment, amount: "" })
       if (paymentYape && paymentCash) {
-        setAmountPayment({ ...amountPayment, cash: `${totalAmountToCart.toFixed(2)}`, yape: "0" })
+        setAmountPayment({ ...amountPayment, cash: `${totalToPayment.toFixed(2)}`, yape: "0" })
       }
       if (paymentYape && paymentCash === false) {
-        // console.log('entrando a solo pago con yape')
-        setAmountPayment({ yape: `${totalAmountToCart.toFixed(2)}`, cash: "0" })
-        // setAmountPayment({ ...amountPayment, yape: `${totalAmountToCart.toFixed()}`, cash: "0" })
+        setAmountPayment({ ...amountPayment, yape: `${totalToPayment.toFixed(2)}`, cash: "0" })
       }
       if (paymentYape === false && paymentCash) {
-        setAmountPayment({ ...amountPayment, cash: `${totalAmountToCart.toFixed(2)}`, yape: "0" })
+        setAmountPayment({ ...amountPayment, cash: `${totalToPayment.toFixed(2)}`, yape: "0" })
       }
     } else {
       setWarningPayment({
@@ -55,7 +60,7 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
   }, [totalAmountToCart, paymentYape, paymentCash, amountPayment.yape])
 
   useEffect(() => {
-    setAmountPayment({ ...amountPayment, yape: amountPayment.yape, cash: `${(totalAmountToCart - Number(amountPayment.yape)).toFixed(2)}` })
+    setAmountPayment({ ...amountPayment, yape: amountPayment.yape, cash: `${(totalToPayment - Number(amountPayment.yape)).toFixed(2)}` })
   }, [amountPayment.yape, amountPayment.cash])
 
   const handleChangeAmountPayment = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,15 +101,19 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
       })
     } else {
       showGenerateSale(showSaleModal)
-      paymentTypeContext(paymentYape, paymentCash, amountPayment, operationIdYape, totalAmountToCart)
+      paymentTypeContext(paymentYape, paymentCash, amountPayment, operationIdYape, totalToPayment,Number(positiveBalance))
       setOperationIdYape(initialValueOperationId)
       setWarningPayment(initialWarningPayment)
       setAmountPayment(initialValueAmountsPayment)
       setPaymentYape(false)
-      setPaymentCash(true)
     }
   }
+  console.log('warningPayment', warningPayment)
+  console.log('paymentYape', paymentYape)
+  console.log('positiveBalance', positiveBalance)
+  console.log('totalToPayment',totalToPayment)
   return (
+    // <div className={` grid grid-rows-gridRowsSalesPayModal rounded-md w-[350px] md:w-full shadow-md ml-2 p-3 z-[500] top-[60px] bottom-0 md:top-0 fixed md:relative md:right-0 duration-300 -right-[900px] bg-white  ${showTableSales && "right-[0px] duration-300"}`}>
     <div className={` grid grid-rows-gridRowsSalesPay rounded-md w-[350px] md:w-full shadow-md ml-2 p-3 z-[500] top-[60px] bottom-0 md:top-0 fixed md:relative md:right-0 duration-300 -right-[900px] bg-white  ${showTableSales && "right-[0px] duration-300"}`}>
       <div className='text-lg'>
         <div className='flex justify-end px-1 text-slate-200 '>
@@ -118,9 +127,18 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
           <span className='font-nunito'>I.G.V. 18%</span>
           <span>S/ {(totalAmountToCart * 0.18).toFixed(2)}</span>
         </div>
+        
         <div className='flex justify-between items-center p-1 py-[15px] border-b-[1px] border-slate-300 text-slate-600 font-jp'>
-          <span className='text-red-500 font-bold font-nunito'>TOTAL</span>
-          <span className='font-bold text-2xl'>S/{totalAmountToCart.toFixed(2)}</span>
+          <span className=''>Total</span>
+          <span className=''>S/{totalAmountToCart.toFixed(2)}</span>
+        </div>
+        <div className='flex justify-between p-1 py-[15px] border-b-[1px] border-slate-300 text-green-400 font-jp'>
+          <span className='font-nunito'>Saldo</span>
+          <span>- S/ {Number(positiveBalance).toFixed(2)}</span>
+        </div>
+        <div className='flex justify-between p-1 py-[15px] border-b-[1px] border-slate-300 text-slate-600 font-jp'>
+          <span className='text-red-500 text-xl font-nunito'>T.P.</span>
+          <span>S/ {totalToPayment.toFixed(2)}</span>
         </div>
         <div className='w-full mt-5  text-slate-500 font-comfortaa flex items-center'>
           <p className='mr-3 text-base'>Tipo de pago: </p>
@@ -159,7 +177,8 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
                 <label className='text-slate-500  font-comfortaa text-base '> N. de operacion yape:</label>
                 <input onChange={handleChangeOperationId} value={operationIdYape.operationid} type="number" name="operationid" className='w-full text-slate-400 mt-2 outline-none pl-3 border-orange-400 border-[1px] rounded-md bg-slate-50' />
               </div>
-              {warningPayment.yape ? <p className='text-sm font-montserrat mt-2 text-red-600'>*{warningPayment.yape}.</p> : null}
+              {/* {warningPayment?.yape && <p>*{warningPayment.yape}.</p>} */}
+              {warningPayment?.yape && <p className='text-sm font-montserrat mt-2 text-red-600'>*{warningPayment.yape}.</p>}
               {warningPayment.opartionId && <p className='text-sm font-montserrat mt-2 text-red-600'>*{warningPayment.opartionId}.</p>}
             </div>
             :
@@ -170,22 +189,23 @@ const SideBarTableToSell = ({ totalAmountToCart, productToCart, showTableSales, 
                   <label className='text-slate-500  font-comfortaa text-base '> N. de operacion yape:</label>
                   <input onChange={handleChangeOperationId} value={operationIdYape.operationid} type="number" name="operationid" className='w-full text-slate-400 mt-2 outline-none pl-3 border-orange-400 border-[1px] rounded-md bg-slate-50' />
                 </div>
+                {/* {warningPayment?.yape && <p className='text-sm font-montserrat mt-2 text-red-600'>*{warningPayment.yape}.</p>} */}
               </>
               :
               null
         }
         {
           paymentYape && !paymentCash &&
-            warningPayment.opartionId ?
-            <span className='text-sm text-red-500'>*{warningPayment.opartionId}</span>
-            : null
+        warningPayment.opartionId ? 
+          <span className='text-sm text-red-500'>*{warningPayment.opartionId}</span>        
+        : null 
         }
       </div>
-      <button disabled={productToCart && productToCart?.length === 0 || paymentCash === false && paymentYape === false ? true : false} onClick={validateDataToActiveModalSold} className={`${productToCart && productToCart.length === 0 || paymentCash === false && paymentYape === false ? 'bg-gray-300' : 'bg-blue-400 duration-300 text-md   hover:hover:bg-blue-500'} capitalize font-semibold  rounded-md text-white duration-300 font-nunito shadow-lg w-full p-3 m-auto`}>
-        generar venta
-      </button>
+      <button disabled={productToCart && productToCart?.length > 0 ? false : true} onClick={validateDataToActiveModalSold} className={`${productToCart && productToCart.length === 0 ? 'bg-gray-300' : 'bg-blue-400 duration-300 text-md   hover:hover:bg-blue-500'} capitalize font-semibold  rounded-md text-white duration-300 font-nunito shadow-lg w-full p-3 m-auto`}>
+            generar venta
+          </button>
     </div>
   )
 }
 
-export default SideBarTableToSell
+export default SidebarToSale

@@ -40,8 +40,14 @@ type LibraryData =
   | { type: "loader", payload: boolean }
   | { type: "showSidebar", payload: boolean }
   | { type: "getUser", payload: User }
+  | { type: "warningAmount", payload: string }
+  | { type: "paymentData", payload: PaymentInfo }
+  | { type:"paymentDataToStadistics", payload: PaymentDataToStatdistics}
+  | { type:"dataOfTicketFromDay", payload: BasicDataStatistics}
 
 export const Library = {
+  paymentData: {} as PaymentInfo,
+  warningAmount: "" as string,
   loader: true as boolean,
   newProduct: {} as FormProductValues,
   brands: [] as Brands[],
@@ -78,11 +84,37 @@ export const Library = {
   getDataUser: {} as User,
   validatePin: false as boolean,
   showSidebar: false as boolean,
-  getUser: {} as User
+  getUser: {} as User,
+  paymentDataToStadistics: {} as PaymentDataToStatdistics,
+  dataOfTicketFromDay:{} as BasicDataStatistics
 }
 
 export const ProductsReducer = (state: LibraryAllData, action: LibraryData) => {
   switch (action.type) {
+    case "dataOfTicketFromDay": {
+      return {
+        ...state,
+        dataOfTicketFromDay: action.payload
+      }
+    }
+    case "paymentDataToStadistics":{
+      return {
+        ...state,
+        paymentDataToStadistics:action.payload
+      }
+    }
+    case "paymentData": {
+      return {
+      ...state,
+      paymentData:action.payload
+      }
+    }
+    case "warningAmount" : {
+      return {
+        ...state,
+        warningAmount:action.payload
+      }
+    }
     case "getUser":{
       return {
         ...state,
