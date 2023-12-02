@@ -32,7 +32,7 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
   } else {
     queryStatistics.docs.forEach(dailyDayData => {
       dataFromStatistics.push({ ...dailyDayData.data(), date: Number(dailyDayData.id) })
-      console.log('dailyDayData.data()', dailyDayData.data())
+      // console.log('dailyDayData.data()', dailyDayData.data())
     })
     dataFromStatistics.sort((a, b) => {
       const fe = Number(a.date)
@@ -47,11 +47,12 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
     })
     const rta = dataFromStatistics.map(dataPerday => {
       if (dataPerday.dailySales) {
-        totalSalesPerMonth = totalSalesPerMonth + dataPerday.dailySales
-
+        
       }
+      totalSalesPerMonth = Number(totalSalesPerMonth) + Number(dataPerday.dailySales)
       dataSalesLabel.push(`${dataPerday.date}`)
-      dataPerday.dailySales && dataSales.push(dataPerday.dailySales)
+      // dataPerday.dailySales && 
+      dataSales.push(Number(dataPerday.dailySales))
       const tickets = Number(dataPerday.tickets)
       const sales = Number(dataPerday.dailySales)
       if (Number(dataPerday.tickets) === 0 && Number(dataPerday.dailySales) === 0) {

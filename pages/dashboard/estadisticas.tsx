@@ -43,7 +43,7 @@ const Estadisticas = () => {
   const { getDataUser, dailySaleContext, LibraryData, dailyTicketContext, incomePerDay, totalSalesPerYearContext, getDataToStatistics, loaderState,getPaymentTypeDailyContext,getDataUserContext } = useGlobalContext()
   const { dailySale, dailyTicket, averageTicket, dataSales, dataSalesLabel, dataTotalSalesPerMonth, totalSalesYear, dataStatistics, loader, paymentDataToStadistics } = LibraryData
   const [startDate, setStartDate] = useState(dayjs());
-  const [minDate, setMinDate] = useState(dayjs(new Date().setMonth(7)));
+  const [minDate, setMinDate] = useState(dayjs(new Date().setMonth(8)));
   const dateData: DateData = {
     date: startDate.date(),
     month: numberToNameMonth(startDate.month()),
@@ -92,7 +92,7 @@ const Estadisticas = () => {
       },
     },
   };
-  
+  // console.log('dateData',dateData)
   return (
     <LayoutDashboard>
       <>

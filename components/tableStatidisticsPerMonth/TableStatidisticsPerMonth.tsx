@@ -28,7 +28,8 @@ const TableStatidisticsPerMonth = ({ dataStatistics }: Props) => {
             return (
               <tr key={data.date} className='hover:bg-slate-100 cursor-pointer border-b-[1px] border-slate-200 h-[60px]'>
                 <td className='text-center'>{data.date}</td>
-                <td className='text-center'>{data.dailySales?.toFixed(2)}</td>
+                {/* <td className='text-center'>{data.dailySales?.toFixed(2)}</td> */}
+                <td className='text-center'>{data.dailySales}</td>
                 {
                 data.growthSales ?
                 <td className='text-center'>{`${data.growthSales}`}</td>
