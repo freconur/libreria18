@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useState } from "react";
 import { addNewProduct, addStockToProduct, addStockToProductUpdate, dailySale, dailyTicket, deleteProductToCart, findToAddProductCart, generateSold, getBrands, getCategory, getFilterProductByStock, getIncomePerDay, getMarcaSocio, getProductsSales, getTotalSalesPerYear, paymentDataToSale, validateUserPin } from "../reducer/Product";
 import { Library, ProductsReducer } from "../reducer/Product.reducer";
-import { getProductByCodeToUpdateContext } from "../reducer/UpdateProducts";
+import { getProductByCodeToUpdateContext, updateProduct } from "../reducer/UpdateProducts";
 import { dataToStatistics, getPaymentTypeDaily } from "../reducer/Statistics";
 import { cancelTicket, cancelTicketofSale, getTickets } from "../reducer/ventas";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -9,6 +9,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { User, loginWithEmail, signin } from "../reducer/google";
 import { getUser } from "../reducer/user";
 import { newCompany } from "../reducer/sunat";
+import { getProductsFilterByStock, nextProductsFilterByStock, previousProductsFilterByStock } from "../reducer/stock";
 
 interface Props {
   children: React.ReactNode
@@ -45,7 +46,7 @@ type GlobalContextProps = {
   marcaSocio: () => void,
   incomePerDay: () => void,
   totalSalesPerYearContext: () => void,
-  filterProductByStock: (paramsFilter: FilterProdyctBySTock) => void,
+  filterProductByStock: (paramsFilter: FilterProdyctBySTock, lastDocumentProductsByStock:any) => void,
   productByCodeToUpdateContext: (code: string) => void,
   showGenerateSale: (boolean: boolean) => void,
   resetValueToastify: () => void,
@@ -69,7 +70,9 @@ type GlobalContextProps = {
   paymentTypeContext: (paymentYape: boolean, paymentCash: boolean, amountPayment: AmountPayment, operationIdYape: OperationIdYape,totalAmountToCart:number,positiveBalance?:number) => void
   getPaymentTypeDailyContext:(dateData:DateData) => void,
   canelTickerOfSaleContext : (ticket:Ticket) => void,
-  sidebarSales: (showState:boolean) => void
+  nextProductsFilterByStockContext : (lastDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => void,
+  previousProductsFilterByStockContext: (previousDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => void,
+  updateProductContext: (item:ProductToCart) => void
 }
 
 
@@ -78,7 +81,6 @@ export const GlobalContext = createContext<GlobalContextProps>({} as GlobalConte
 export function GlobalcontextProdiver({ children }: Props) {
   const [LibraryData, dispatch] = useReducer(ProductsReducer, Library)
   const [showModalCategory, setShowModalCategory] = useState<boolean>(false)
-  const [showSidebarSales, setShowSidebarSales] = useState<boolean>(false)
   const [showModalUpdateCategory, setShowModalUpdateCategory] = useState<boolean>(false)
   const [showModalDeleteCategory, setShowModalDeleteCategory] = useState<boolean>(false)
   const [showModalBrands, setShowModalBrands] = useState<boolean>(false)
@@ -99,7 +101,6 @@ export function GlobalcontextProdiver({ children }: Props) {
     newCompany(userApisPeru)
   }
   const getDataUserContext = (id: string) => {
-    console.log('global user id', id)
     getUser(dispatch, id as string) 
   }
   const showSidebarContext = (state: boolean) => {
@@ -127,11 +128,11 @@ export function GlobalcontextProdiver({ children }: Props) {
     signin(userDate)
   }
   const cancelTicketContext = (ticket: Ticket) => {
-    cancelTicket(ticket)
+    cancelTicketofSale(ticket)
   }
   const canelTickerOfSaleContext = (ticket:Ticket) => {
-    console.log('entrando al context')
-    cancelTicketofSale(ticket)
+    // console.log('entrando al context')
+    cancelTicket(ticket)
   }
   const setModalCancellationOfSale = (value: boolean) => {
     dispatch({ type: "showCancellationOfsaleModal", payload: !value })
@@ -164,11 +165,6 @@ export function GlobalcontextProdiver({ children }: Props) {
     // setShowSaleModal(!showSaleModal)
     dispatch({ type: "showSaleModal", payload: !boolean })
     dispatch({ type: "warningAmount", payload: "" })
-
-  }
-  const sidebarSales = (showState:boolean) => {
-    // setShowSidebarSales(!showSidebarSales)
-    dispatch({ type: "showSidebarSales", payload: showState })
 
   }
   const showCategory = () => {
@@ -241,16 +237,28 @@ export function GlobalcontextProdiver({ children }: Props) {
   const totalSalesPerYearContext = () => {
     getTotalSalesPerYear(dispatch)
   }
-  const filterProductByStock = (paramsFilter: FilterProdyctBySTock) => {
-    getFilterProductByStock(dispatch, paramsFilter)
+  const filterProductByStock = (paramsFilter: FilterProdyctBySTock, lastDocumentProductsByStock:any) => {
+    // getFilterProductByStock(dispatch, paramsFilter)
+    getProductsFilterByStock(dispatch,paramsFilter, lastDocumentProductsByStock)
   }
+  const nextProductsFilterByStockContext = (lastDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => {
+    nextProductsFilterByStock(dispatch,paramsFilter,lastDocumentProductsByStock)
+  } 
+  const previousProductsFilterByStockContext = (previousDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => {
+    previousProductsFilterByStock(dispatch,paramsFilter,previousDocumentProductsByStock)
+  } 
   const productByCodeToUpdateContext = (code: string) => {
     getProductByCodeToUpdateContext(dispatch, code)
+  }
+  const updateProductContext = (item:ProductToCart) => {
+    updateProduct(dispatch, item)
   }
 
   return (
     <GlobalContext.Provider value={{
-      sidebarSales,
+      updateProductContext,
+      previousProductsFilterByStockContext,
+      nextProductsFilterByStockContext,
       canelTickerOfSaleContext,
       getPaymentTypeDailyContext,
       paymentTypeContext,

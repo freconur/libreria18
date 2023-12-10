@@ -11,9 +11,9 @@ const yearMonth = `${currentMonth()}-${currentYear()}`
 const DAILY_SALE = "vAWFt15qlNVykhHvNno0"
 const DB_VENTAS = "xB98zEEqUPU3LXiIf7rQ"
 const PRODUCT_SALES = "product-sales"
-const SALES_PER_MONTH = "EwszanTDNKpiCy4gMvSu"
+const SALES_PER_MONTH = "xB98zEEqUPU3LXiIf7rQ"
 const TICKET = "1gZJTbl4yu6S8oD9a1En"
-const PAYMENT_TYPE = "CmUL2BxS42XLE9c40kOs"
+const PAYMENT_TYPE = "1gZJTbl4yu6S8oD9a1En"
 
 export const addNewProduct = async (dispatch: (action: any) => void, productData: FormProductValues) => {
   const docRef = doc(db, "products", productData.code as string); // busco en la base de datos
@@ -268,7 +268,7 @@ export const dailyTicket = async (dispatch: (action: any) => void, dateData:Date
 }
 export const generateSold = async (dispatch: (action: any) => void, cart: ProductToCart[] | undefined, cero: number, paymentData: PaymentInfo, userData: User) => {
   dispatch({ type: "generateSold", payload: true })
-  dispatch({ type: "showSidebarSales", payload: false })
+
   // let totalAmountOfCartLibrary: number = 0
   const findProductAmountCero = cart?.find(p => p.amount === 0)
 
@@ -318,7 +318,6 @@ export const generateSold = async (dispatch: (action: any) => void, cart: Produc
       .then(async r => {
         await addTicketDataToStatistics()
         await addProductCartToProductSales(cart)
-        
       })
     // debo verificar de donde obtengo la data de estadisticas antes de agregar o quitar esta data del endpoint
     //aqui tengo que crear la funcionalidad de que sume el daily sale correspondiente para cada marca

@@ -15,7 +15,15 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
   const createNewDataRef = doc(db, `/statistics/${YEAR_MONTH}/`, `${FECHA}`)
   const docSnap = await getDoc(createNewDataRef);
   const dataFromDay = doc(db, `statistics/${dateData.month}-${dateData.year}/${dateData.month}-${dateData.year}/`, `${dateData.date}`)
-  const getTicketFromDay = await getDoc(dataFromDay) 
+  const getTicketFromDay = await getDoc(dataFromDay)
+  if (getTicketFromDay.exists()) {
+    dispatch({ type: "dataOfTicketFromDay", payload: getTicketFromDay.data() })
+  } else {
+    await setDoc(doc(db, `statistics/${dateData.month}-${dateData.year}/${dateData.month}-${dateData.year}/`, `${dateData.date}`), { dailySales: 0, tickets: 0 })
+      .then(r => {
+        dispatch({ type: "dataOfTicketFromDay", payload: { dailySales: 0, tickets: 0 } })
+      })
+  }
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
   } else {
@@ -46,12 +54,9 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
       return 0;
     })
     const rta = dataFromStatistics.map(dataPerday => {
-      if (dataPerday.dailySales) {
-        
-      }
-      totalSalesPerMonth = Number(totalSalesPerMonth) + Number(dataPerday.dailySales)
+      totalSalesPerMonth = totalSalesPerMonth + Number(dataPerday.dailySales)
       dataSalesLabel.push(`${dataPerday.date}`)
-      // dataPerday.dailySales && 
+      // dataPerday.dailySales && dataSales.push(dataPerday.dailySales)
       dataSales.push(Number(dataPerday.dailySales))
       const tickets = Number(dataPerday.tickets)
       const sales = Number(dataPerday.dailySales)
@@ -63,17 +68,33 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
         dataPerday.averageTicket = averageTicket
       }
     })
+
     if (rta) {
+      console.log('dataFromStatistics', dataFromStatistics)
       dataFromStatistics.map((dataPerday, index) => {
         if (index === 0) {
           console.log('esta data no tendra crecimiento')
         } else {
-          const growthTicket = (((Number(dataPerday.tickets) / Number(dataFromStatistics[index - 1].tickets)) - 1) * 100).toFixed(2)
-          const growthSales = (((Number(dataPerday.dailySales) / Number(dataFromStatistics[index - 1].dailySales)) - 1) * 100).toFixed(2)
-          const growthAverageTicket = Number((((Number(dataPerday.averageTicket) / Number(dataFromStatistics[index - 1].averageTicket)) - 1) * 100).toFixed(2))
-          dataPerday.growthTicket = Number(growthTicket)
-          dataPerday.growthSales = Number(growthSales)
-          dataPerday.growthAverageTicket = Number(growthAverageTicket)
+
+          if (dataPerday.dailySales === 0 && dataPerday.tickets === 0) {
+            // dataPerday.growthTicket = 0
+            dataPerday.growthSales = 0
+            dataPerday.growthTicket = 0
+            dataPerday.growthAverageTicket = 0
+          } 
+          if(Number(dataFromStatistics[index - 1].dailySales) === 0) {
+            dataPerday.growthSales = 0
+            dataPerday.growthTicket = 0
+            dataPerday.growthAverageTicket = 0
+          }else {
+            const growthTicket = (((Number(dataPerday.tickets) / Number(dataFromStatistics[index - 1].tickets)) - 1) * 100).toFixed(2)
+            const growthSales = (((Number(dataPerday.dailySales) / Number(dataFromStatistics[index - 1].dailySales)) - 1) * 100).toFixed(2)
+            const growthAverageTicket = Number((((Number(dataPerday.averageTicket) / Number(dataFromStatistics[index - 1].averageTicket)) - 1) * 100).toFixed(2))
+            dataPerday.growthSales = Number(growthSales)
+            dataPerday.growthTicket = Number(growthTicket)
+            dataPerday.growthAverageTicket = Number(growthAverageTicket)
+
+          }
         }
       })
       dispatch({ type: "dataStatistics", payload: dataFromStatistics })
@@ -81,8 +102,8 @@ export const dataToStatistics = async (dispatch: (action: any) => void, dateData
       dispatch({ type: "dataSales", payload: dataSales })
       dispatch({ type: "dataSalesLabel", payload: dataSalesLabel })
       dispatch({ type: "dataTotalSalesPerMonth", payload: totalSalesPerMonth })
-      dispatch({ type: "dataOfTicketFromDay", payload: getTicketFromDay.data() })
-      
+
+
     }
   }
 }

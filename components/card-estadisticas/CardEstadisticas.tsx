@@ -30,7 +30,7 @@ const CardEstadisticas = ({ paymentDataToStadistics, dataStatistics, dataSales, 
   useEffect(() => {
     // getTest()
   }, [dailySale])
-  console.log('dataTotalSalesPerMonth', dataTotalSalesPerMonth)
+  console.log('dataTotalSalesPerMonth',dataTotalSalesPerMonth)
   return (
     <>
       {
@@ -121,7 +121,7 @@ const CardEstadisticas = ({ paymentDataToStadistics, dataStatistics, dataSales, 
                 <div className="text-slate-600 flex gap-3  font-bold">
                   <div className="flex justify-center items-center">
                     {/* <p className='text-3xl'># {Number(dataStatistics[dataStatistics.length - 1]?.tickets)}</p> */}
-                    <p className='text-3xl'># {dataOfTicketFromDay.tickets}</p>
+                    <p className='text-3xl'># {dataOfTicketFromDay?.tickets}</p>
                     {/* <p className='text-3xl'># {dailyTicket}</p> */}
                   </div>
                 </div>
@@ -214,7 +214,6 @@ const CardEstadisticas = ({ paymentDataToStadistics, dataStatistics, dataSales, 
                 <div className="text-slate-600 flex gap-3  font-bold">
                   <div className="flex justify-center items-center">
                     <p className='text-3xl'>$ {dataTotalSalesPerMonth && dataTotalSalesPerMonth.toFixed(2)}</p>
-                    {/* <p className='text-3xl'>$ {dataTotalSalesPerMonth}</p> */}
                   </div>
                 </div>
 

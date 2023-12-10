@@ -44,9 +44,13 @@ type LibraryData =
   | { type: "paymentData", payload: PaymentInfo }
   | { type:"paymentDataToStadistics", payload: PaymentDataToStatdistics}
   | { type:"dataOfTicketFromDay", payload: BasicDataStatistics}
-  | { type:"showSidebarSales", payload: boolean}
+  | { type:"lastDocumentProductsByStock", payload: any}
+  | { type:"previousDocumentProductsByStock", payload: any}
+  
 
 export const Library = {
+  lastDocumentProductsByStock: {} as any,
+  previousDocumentProductsByStock: {} as any,
   paymentData: {} as PaymentInfo,
   warningAmount: "" as string,
   loader: true as boolean,
@@ -87,16 +91,21 @@ export const Library = {
   showSidebar: false as boolean,
   getUser: {} as User,
   paymentDataToStadistics: {} as PaymentDataToStatdistics,
-  dataOfTicketFromDay:{} as BasicDataStatistics,
-  showSidebarSales: false as boolean
+  dataOfTicketFromDay:{} as BasicDataStatistics
 }
 
 export const ProductsReducer = (state: LibraryAllData, action: LibraryData) => {
   switch (action.type) {
-    case "showSidebarSales":{
+    case "previousDocumentProductsByStock" : {
       return {
         ...state,
-        showSidebarSales:action.payload
+        previousDocumentProductsByStock:action.payload
+      }
+    }
+    case "lastDocumentProductsByStock" : {
+      return {
+        ...state,
+        lastDocumentProductsByStock:action.payload
       }
     }
     case "dataOfTicketFromDay": {
