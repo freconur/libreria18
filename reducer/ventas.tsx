@@ -7,7 +7,7 @@ const YEAR_MONTH = `${currentMonth()}-${currentYear()}/${currentMonth()}-${curre
 const yearMonth = `${currentMonth()}-${currentYear()}`
 const DB_VENTAS = "xB98zEEqUPU3LXiIf7rQ"
 const DAILY_SALE = "vAWFt15qlNVykhHvNno0"
-const PAYMENT_TYPE = "1gZJTbl4yu6S8oD9a1En"
+const PAYMENT_TYPE = "CmUL2BxS42XLE9c40kOs"
 
 export const getTickets = async (dispatch: (action: any) => void, dateData: DateData) => {
   const pathTicket = `${dateData.month}-${dateData.year}/${dateData.month}-${dateData.year}/${dateData.date}`

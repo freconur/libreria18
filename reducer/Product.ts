@@ -13,7 +13,7 @@ const DB_VENTAS = "xB98zEEqUPU3LXiIf7rQ"
 const PRODUCT_SALES = "product-sales"
 const SALES_PER_MONTH = "xB98zEEqUPU3LXiIf7rQ"
 const TICKET = "1gZJTbl4yu6S8oD9a1En"
-const PAYMENT_TYPE = "1gZJTbl4yu6S8oD9a1En"
+const PAYMENT_TYPE = "CmUL2BxS42XLE9c40kOs"
 
 export const addNewProduct = async (dispatch: (action: any) => void, productData: FormProductValues) => {
   const docRef = doc(db, "products", productData.code as string); // busco en la base de datos
