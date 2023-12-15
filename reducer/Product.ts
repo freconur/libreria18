@@ -268,7 +268,7 @@ export const dailyTicket = async (dispatch: (action: any) => void, dateData:Date
 }
 export const generateSold = async (dispatch: (action: any) => void, cart: ProductToCart[] | undefined, cero: number, paymentData: PaymentInfo, userData: User) => {
   dispatch({ type: "generateSold", payload: true })
-
+  dispatch({ type: "showSidebarSale", payload: false })
   // let totalAmountOfCartLibrary: number = 0
   const findProductAmountCero = cart?.find(p => p.amount === 0)
 
