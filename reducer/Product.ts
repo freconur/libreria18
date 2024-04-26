@@ -211,8 +211,8 @@ export const deleteProductToCart = (dispatch: (action: any) => void, cart: Produ
 
 
 
-export const dailySale = async (dispatch: (action: any) => void,dateData: DateData) => {
- 
+export const dailySale = async (dispatch: (action: any) => void, dateData: DateData) => {
+
   // const dailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${yearMonth}/`, `${currentDate()}`)
   const dailySaleRef = doc(db, `/dailysale/${DAILY_SALE}/${dateData.month}-${dateData.year}/`, `${dateData.date}`)
 
@@ -240,7 +240,7 @@ export const dailySale = async (dispatch: (action: any) => void,dateData: DateDa
 
 
 
-export const dailyTicket = async (dispatch: (action: any) => void, dateData:DateData) => {
+export const dailyTicket = async (dispatch: (action: any) => void, dateData: DateData) => {
   // const q = query(collection(db, "cities")
   const res = query(collection(db, `/db-ventas/${DB_VENTAS}/${YEAR_MONTH}/${currentDate()}`));
   // const res = query(collection(db, `/db-ventas/${DB_VENTAS}/${dateData.month}-${dateData.year}/${dateData.month}-${dateData.year}`, `${dateData.date}`));
@@ -405,7 +405,7 @@ export const addProductFromCartToTicket = async (ticket: Ticket, userData: User)
           })
           const getPaymentType = await getDoc(paymentTypeRef)
           if (getPaymentType.exists()) {
-              await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.yape.amount)), cash: increment(Number(ticket.paymentData.cash.amount)) })
+            await updateDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { yape: increment(Number(ticket.paymentData.yape.amount)), cash: increment(Number(ticket.paymentData.cash.amount)) })
           } else {
             await setDoc(doc(db, `/payment-type/${PAYMENT_TYPE}/${yearMonth}/${currentDate()}`), { cash: 0, yape: 0 })
               .then(async r => {
@@ -709,6 +709,10 @@ export const validateUserPin = async (dispatch: (action: any) => void, idUser: s
       dispatch({ type: "validatePin", payload: true })
     }
   }
+}
+
+export const validateUserPinReset = (dispatch: (action: any) => void) => {
+  dispatch({ type: "validatePin", payload: false })
 }
 
 export const paymentDataToSale = (dispatch: (action: any) => void, paymentYape: boolean, paymentCash: boolean, amountPayment: AmountPayment, operationIdYape: OperationIdYape, totalAmountToCart: number, balanceFromCustomer?: number) => {

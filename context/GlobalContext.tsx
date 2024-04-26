@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useState } from "react";
-import { addNewProduct, addStockToProduct, addStockToProductUpdate, dailySale, dailyTicket, deleteProductToCart, findToAddProductCart, generateSold, getBrands, getCategory, getFilterProductByStock, getIncomePerDay, getMarcaSocio, getProductsSales, getTotalSalesPerYear, paymentDataToSale, validateUserPin } from "../reducer/Product";
+import { addNewProduct, addStockToProduct, addStockToProductUpdate, dailySale, dailyTicket, deleteProductToCart, findToAddProductCart, generateSold, getBrands, getCategory, getFilterProductByStock, getIncomePerDay, getMarcaSocio, getProductsSales, getTotalSalesPerYear, paymentDataToSale, validateUserPin, validateUserPinReset } from "../reducer/Product";
 import { Library, ProductsReducer } from "../reducer/Product.reducer";
 import { getProductByCodeToUpdateContext, updateProduct } from "../reducer/UpdateProducts";
 import { dataToStatistics, getPaymentTypeDaily } from "../reducer/Statistics";
@@ -73,7 +73,8 @@ type GlobalContextProps = {
   nextProductsFilterByStockContext : (lastDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => void,
   previousProductsFilterByStockContext: (previousDocumentProductsByStock:any,paramsFilter: FilterProdyctBySTock) => void,
   updateProductContext: (item:ProductToCart) => void,
-  showSidebarSaleContext: (state:boolean) => void
+  showSidebarSaleContext: (state:boolean) => void,
+  validateUserPinResetContext: () => void
 }
 
 
@@ -119,6 +120,9 @@ export function GlobalcontextProdiver({ children }: Props) {
   }
   const validateUserPinContext = (idUser: string, pin: string) => {
     validateUserPin(dispatch, idUser, pin)
+  }
+  const validateUserPinResetContext = () => {
+    validateUserPinReset(dispatch)
   }
   const getDataUser = (idUser: string) => {
     User(dispatch, idUser)
@@ -261,6 +265,7 @@ export function GlobalcontextProdiver({ children }: Props) {
 
   return (
     <GlobalContext.Provider value={{
+      validateUserPinResetContext,
       updateProductContext,
       showSidebarSaleContext,
       previousProductsFilterByStockContext,

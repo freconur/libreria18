@@ -75,7 +75,7 @@ const FormUpdate = ({ categoryActive, handleActiveBrands, handleActiveCategory, 
                     marca :
                   </label>
                   <div className='w-full flex gap-4 justify-center items-center'>
-                    <select onChange={onChangeItem} name="brand" disabled={brandActive} className='outline-none w-full rounded-lg text-slate-500 capitalize h-[35px]'>
+                    <select onChange={onChangeItem} name="brand" disabled={brandActive} className='w-full outline-none rounded-lg text-slate-500 capitalize h-[35px]'>
                       <option value={item?.brand}>{item?.brand}</option>
                       {
                         brands
